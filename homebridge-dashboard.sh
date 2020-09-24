@@ -1,9 +1,15 @@
 #!/bin/bash
 # Name: homebridge-dashboard.sh
-# Version: 2.0.0
+# Version: 2.0.1
 # Autor: sschuste & Nastra (German SmartApfel HomeKit Forum)
 # Link: https://github.com/Nastras/homebridge-dashboard
 
+# Test of deconz Packet
+if dpkg-query -s "deconz" 2>/dev/null|grep -q installed; then
+    DECONZ=1
+else
+    DECONZ=0
+fi
 
 # Script Language
 TEMP=`getopt -o l:p: --long lang:,path: -- "$@"`
@@ -191,10 +197,10 @@ INSTANZAKTIV="$(systemctl -t service | grep -w homebridge | grep -w active | wc 
 INSTANZINAKTIV="$(systemctl -t service | grep -w homebridge | egrep "activating|failed" | wc -l) $DISPLAY_HOMEBRIDGEINSTANCE"
 
 # deCONZ Version
-#DECONZVERSION=`dpkg -s deconz | grep '^Version:' | cut -d "-" -f 1 | awk '{print $2}'`
+[ "$DECONZ" == "1" ] && DECONZVERSION=`dpkg -s deconz | grep '^Version:' | cut -d "-" -f 1 | awk '{print $2}'`
 
 # deCONZ status
-#DECONZSTATUS="$(systemctl -t service | egrep "deconz.service|deconz-gui.service" | grep -w active | wc -l) $DISPLAY_DECONZINSTANCE"
+[ "$DECONZ" == "1" ] && DECONZSTATUS="$(systemctl -t service | egrep "deconz.service|deconz-gui.service" | grep -w active | wc -l) $DISPLAY_DECONZINSTANCE"
 
 
 echo -e "\e[1;35m$DISPLAY_TITLE"
@@ -221,5 +227,5 @@ output "blue"    "$DISPLAY_HOMEBRIDGEVERSION" "$HOMEBRIDGE"							"             
 output "blue"    "$DISPLAY_HOMEBRIDGETOTAL" "$INSTANZTOTAL"							"                        ███             "
 output "blue"    "$DISPLAY_HOMEBRIDGEACTIVE" "$INSTANZAKTIV"						"                       ███              "
 output "blue"    "$DISPLAY_HOMEBRIDGEINACTIVE" "$INSTANZINAKTIV"					"                      ███               "
-#output "green"   "$DISPLAY_DECONZVERSION" "$DECONZVERSION"							"                    ███                 "
-#output "green"   "$DISPLAY_DECONZSTATUS" "$DECONZSTATUS"							"                   ███                  "
+[ "$DECONZ" == "1" ] && output "green"   "$DISPLAY_DECONZVERSION" "$DECONZVERSION"							"                    ███                 "
+[ "$DECONZ" == "1" ] && output "green"   "$DISPLAY_DECONZSTATUS" "$DECONZSTATUS"							"                   ███                  "
